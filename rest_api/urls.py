@@ -23,4 +23,6 @@ urlpatterns = [
     
     #session login from django rest framework
     path('api-auth/', include('rest_framework.urls')),
+
+    #project app views
 ]
