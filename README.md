@@ -1,2 +1,4 @@
 # ms-five-api
-backend api for ms-five on code institute, using Django REST Framework 
+backend api for fifth milestone project on code institute, using Django REST Framework.
+
+
