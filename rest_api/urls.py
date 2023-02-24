@@ -25,5 +25,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
     #project app views
-    path('', include('profiles.urls'))
+    path('', include('profiles.urls')),
+    path('', include('groups.urls')),
 ]

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 
     #project specific apps
     'profiles',
+    'groups',
 
 ]
 

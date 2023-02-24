@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import Group
+from profiles.serializers import ProfileSerializer
 
 class GroupSerializer(serializers.ModelSerializer):
-    group_owner = serializers.ReadOnlyField()
+    #add username of group owner
+    members = ProfileSerializer(many=True)
 
     class Meta:
         model = Group
         fields = [
-            'id','name','description','group_owner','members','created_at','updated_at',
+            'id','group_owner','name','description','members','created_at','updated_at',
         ]
