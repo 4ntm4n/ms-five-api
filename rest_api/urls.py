@@ -20,9 +20,6 @@ from .views import root_route
 urlpatterns = [
     path('', root_route),
     path('admin/', admin.site.urls),
-
-    #include rest framework built in authentication
-    path('api-auth/', include('rest_framework.urls')),
     
     #session login from django rest framework
     path('api-auth/', include('rest_framework.urls')),
