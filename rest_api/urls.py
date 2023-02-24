@@ -27,4 +27,5 @@ urlpatterns = [
     #project app views
     path('', include('profiles.urls')),
     path('', include('groups.urls')),
+    path('', include('tasks.urls')),
 ]
