@@ -5,9 +5,9 @@ from rest_framework.test import APITestCase
 class SignupTest(APITestCase):
 
     def setUp(self):
-        self.url = '/signup/'
+        self.url = 'dj-rest-auth/registration/'
         self.response = self.client.get(self.url)
-    
+        print("!!!!!!", self.response.status_code)
     def test_if_signup_url_is_working(self):
-        response = self.response.status_code
-        self.assertEqual(response, status.HTTP_200_OK)
+        
+        self.assertEqual(self.response.status_code, status.HTTP_200_OK)
