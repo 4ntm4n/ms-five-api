@@ -5,6 +5,26 @@ from rest_framework.test import APITestCase
 
 class AuthTests(APITestCase):
 
+    # endpoints tested in this testcase.
+    endpoints = {
+        "signup": "/dj-rest-auth/registration/",
+        "login": "/dj-rest-auth/login/",
+        "logout": "/dj-rest-auth/logout/",
+    }
+
+    # object containig new user data and existing user data
+    new_user = {
+        "username": "testUser",
+        "password1": "Testytester123",
+        "password2": "Testytester123",
+    }
+
+    def get_existing_user(self):
+        return {
+            "username": self.new_user["username"],
+            "password": self.new_user["password1"],
+        }
+
     def setUp(self):
         """
         sets up a test version of the database,
@@ -12,12 +32,8 @@ class AuthTests(APITestCase):
         creats user data and then tries to post it to the
         registration endpoind url using json format.  
         """
-        url = '/dj-rest-auth/registration/'
-        data = {
-            "username": "testUser",
-            "password1": "Testytester123",
-            "password2": "Testytester123"
-        }
+        url = self.endpoints["signup"]
+        data = self.new_user
         self.response = self.client.post(url, data, format='json')
 
     def test_if_signup_url_is_working(self):
@@ -39,13 +55,13 @@ class AuthTests(APITestCase):
 
     def test_if_user_can_login(self):
         """
-        test if testUser can login to the 
+        1. Test if user can login using dj-rest-auth/login/ expect: Status 200_OK.
+        2.Test if user revieces a session token as "key" in response -
+        expect: response "key" to not be None.
+
         """
-        url = '/dj-rest-auth/login/'
-        data = {
-            "username": "testUser",
-            "password": "Testytester123",
-        }
+        url = self.endpoints["login"]
+        data = self.get_existing_user()
         response = self.client.post(url, data, format='json')
-        print('RESPONSE :', response.content)
+        self.assertIsNotNone(response.data["key"])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
