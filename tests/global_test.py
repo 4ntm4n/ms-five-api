@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 
-class SignupTest(APITestCase):
+class AuthTests(APITestCase):
 
     def setUp(self):
         """
@@ -34,6 +34,18 @@ class SignupTest(APITestCase):
         if user do exist, the user.username will be testUser and the test will pass.
         """
         user = User.objects.filter(username="testUser").first()
+        self.assertIsNotNone(user)
         self.assertEqual(user.username, 'testUser')
 
-    
+    def test_if_user_can_login(self):
+        """
+        test if testUser can login to the 
+        """
+        url = '/dj-rest-auth/login/'
+        data = {
+            "username": "testUser",
+            "password": "Testytester123",
+        }
+        response = self.client.post(url, data, format='json')
+        print('RESPONSE :', response.content)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
