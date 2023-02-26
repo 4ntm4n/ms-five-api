@@ -58,10 +58,21 @@ class AuthTests(APITestCase):
         1. Test if user can login using dj-rest-auth/login/ expect: Status 200_OK.
         2.Test if user revieces a session token as "key" in response -
         expect: response "key" to not be None.
-
         """
         url = self.endpoints["login"]
         data = self.get_existing_user()
         response = self.client.post(url, data, format='json')
         self.assertIsNotNone(response.data["key"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_if_user_can_logout(self):
+        """
+        test if user can logout. expect: response.data to contain Successful logout message,
+        expect response status code to be 200.
+        """
+        url = self.endpoints["logout"]
+        data = self.get_existing_user()
+        response = self.client.post(url, data, format='json')
+        #self.assertNotIn("key", response.data)
+        self.assertEqual(response.data["detail"], "Successfully logged out.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
