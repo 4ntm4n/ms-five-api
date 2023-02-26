@@ -77,11 +77,12 @@ class AuthTests(APITestCase):
         data = self.get_existing_user()
         user_url = self.endpoints["user"] 
 
-        #save authentication status on current user, anonymos or loged in
-        is_auth = response.wsgi_request.user.is_authenticated
+        
         
         #check if user is authenticated from prev test.
         response = self.client.get(user_url, data, format='json')
+        #save authentication status logedin users are Truthy. expect True.
+        is_auth = response.wsgi_request.user.is_authenticated
         self.assertTrue(is_auth)
         
         #check if user can reach logout endpoint and logout.
@@ -92,5 +93,6 @@ class AuthTests(APITestCase):
 
         #check if user no longer is authenticated
         response = self.client.get(user_url, data, format='json')
+        #save authentication status logedin users are Truthy. expect False.
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertFalse(is_auth)
