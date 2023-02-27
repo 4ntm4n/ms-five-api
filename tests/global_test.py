@@ -120,8 +120,22 @@ class TestGroups(APITestCase):
         User.objects.create(username='TestGroupUser', password="SecretPW123")
         
     
-    def test_logged_out_users_can_not_see_groups(self):
+    def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
         url = self.endpoints["groups"]
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_logged_in_user_can_not_see_groups_list(self):
+        """un-auth users should not be able to see groups"""
+        #login user
+        self.client.post(self.login, {"username": "TestGroupUser", "password":"SecretPW123"}, format='json')
+        
+        #get url
+        url = self.endpoints["groups"]
+        response = self.client.get(url, format='json')
+        #expect to be granted access
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def users_can_create_a_group(self):
+        
