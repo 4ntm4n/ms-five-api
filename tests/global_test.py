@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 
-class AuthTests(APITestCase):
+class TestAuth(APITestCase):
 
     # endpoints tested in this testcase.
     endpoints = {
@@ -66,7 +66,7 @@ class AuthTests(APITestCase):
         self.assertIsNotNone(response.data["key"])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_if_user_can_logout(self):
+    def test_if_logged_in_user_can_logout(self):
         """
         1.Test if user is loged in is_auth to be true since last test.
         2.Test if user can reach logout endpoind. expect postrequest 200 OK and sucessmessage
@@ -77,8 +77,6 @@ class AuthTests(APITestCase):
         data = self.get_existing_user()
         user_url = self.endpoints["user"] 
 
-        
-        
         #check if user is authenticated from prev test.
         response = self.client.get(user_url, data, format='json')
         #save authentication status logedin users are Truthy. expect True.
@@ -96,3 +94,34 @@ class AuthTests(APITestCase):
         #save authentication status logedin users are Truthy. expect False.
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertFalse(is_auth)
+
+
+from groups.models import Group
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+
+class TestGroups(APITestCase):
+    #endpoints tested 
+    endpoints = {
+        "groups": "/groups/",
+    }
+
+
+    #login / out endpoints
+    login = '/dj-rest-auth/login/'
+    logout = '/dj-rest-auth/login/'
+
+    def setUp(self):
+        """
+        create user in the database
+        login user 
+        """
+        User.objects.create(username='TestGroupUser', password="SecretPW123")
+        
+    
+    def test_logged_out_users_can_not_see_groups(self):
+        """un-auth users should not be able to see groups"""
+        url = self.endpoints["groups"]
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
