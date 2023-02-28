@@ -153,7 +153,6 @@ class TestGroups(APITestCase):
         # create post with user
         url = self.endpoints["groups"]
         group_data = {
-            "group_owner": self.user.profile.id,
             "name": "test name",
             "description": "test description",
         }
