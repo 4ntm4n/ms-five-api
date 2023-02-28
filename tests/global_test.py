@@ -113,11 +113,7 @@ class TestGroups(APITestCase):
         "password": "",
     }
 
-    group_data = {
-        "name": "",
-        "description": ""
-    }
-
+    group_data = None
     user = None
 
     def setUp(self):
@@ -129,6 +125,11 @@ class TestGroups(APITestCase):
         self.user_cred["username"] = User.objects.first().username
         self.user_cred["password"] = User.objects.first().password
         self.user = User.objects.first()
+
+        self.group_data = {
+            "name": "test name",
+            "description": "test description",
+        }
 
     def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
@@ -152,11 +153,8 @@ class TestGroups(APITestCase):
 
         # create post with user
         url = self.endpoints["groups"]
-        group_data = {
-            "name": "test name",
-            "description": "test description",
-        }
-        response = self.client.post(url, group_data, format="json")
+        
+        response = self.client.post(url, self.group_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # check if group was created
@@ -168,3 +166,12 @@ class TestGroups(APITestCase):
         self.assertEqual(group.group_owner.owner.username, self.user.username)
         self.assertEqual(group.members.count(), 0)
 
+    def test_GroupDetailView(self):
+        """
+        test if groupDetail page is reachable. 
+        """
+        user = User.objects.first()
+        group = Group.objects.create(group_owner=user.profile, name="test group", description="test description")
+        url = f"/groups/{group.id}/"
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
