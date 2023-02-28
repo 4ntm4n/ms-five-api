@@ -27,13 +27,15 @@ class GroupMembersView(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         group_id = kwargs.get('pk')
+        profile_id = request.data.get('profile_id')
+
         try:
             group = Group.objects.get(id=group_id)
-            if group.group_owner == request.user.profile:
-                return self.update(request, *args, **kwargs)
-            else:
-                return Response(status=status.HTTP_403_FORBIDDEN)
-        except AttributeError:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            serializer = self.serializer_class(group)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
         except Group.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'no group found with that id..'}, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response({'detail': f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
