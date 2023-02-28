@@ -8,7 +8,21 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = [
-            'id', 'group_owner', 'name', 'description', 'created_at', 'updated_at',
+            'id', 'name', 'description', 'group_owner', 'members', 'created_at', 'updated_at',
+        ]
+    
+    def create(self, validated_data):
+        validated_data['group_owner'] = self.context['request'].user.profile
+        return super().create(validated_data)
+
+
+class GroupMembersSerializer(serializers.ModelSerializer):
+    group_owner = ProfileSerializer(read_only=True)
+    
+    class Meta:
+        model = Group
+        fields = [
+            'id', 'name', 'group_owner', 'members',
         ]
     
     def create(self, validated_data):
