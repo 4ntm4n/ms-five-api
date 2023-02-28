@@ -1,3 +1,5 @@
+from profiles.models import Profile
+from groups.models import Group
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -75,42 +77,43 @@ class TestAuth(APITestCase):
         """
         # set the user object and user url
         data = self.get_existing_user()
-        user_url = self.endpoints["user"] 
+        user_url = self.endpoints["user"]
 
-        #check if user is authenticated from prev test.
+        # check if user is authenticated from prev test.
         response = self.client.get(user_url, data, format='json')
-        #save authentication status logedin users are Truthy. expect True.
+        # save authentication status logedin users are Truthy. expect True.
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertTrue(is_auth)
-        
-        #check if user can reach logout endpoint and logout.
+
+        # check if user can reach logout endpoint and logout.
         url = self.endpoints["logout"]
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.data["detail"], "Successfully logged out.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #check if user no longer is authenticated
+        # check if user no longer is authenticated
         response = self.client.get(user_url, data, format='json')
-        #save authentication status logedin users are Truthy. expect False.
+        # save authentication status logedin users are Truthy. expect False.
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertFalse(is_auth)
 
 
-from groups.models import Group
-from rest_framework import status
-from rest_framework.test import APITestCase
-
-
 class TestGroups(APITestCase):
-    #endpoints tested 
+    # endpoints tested
     endpoints = {
         "groups": "/groups/",
     }
 
-
-    #login / out endpoints
+    # login / out endpoints
     login = '/dj-rest-auth/login/'
-    logout = '/dj-rest-auth/login/'
+    logout = '/dj-rest-auth/logout/'
+
+    user_cred = {
+        "username": "",
+        "password": "",
+    }
+
+    user = None
 
     def setUp(self):
         """
@@ -118,24 +121,26 @@ class TestGroups(APITestCase):
         login user 
         """
         User.objects.create(username='TestGroupUser', password="SecretPW123")
-        
-    
+        self.user_cred["username"] = User.objects.first().username
+        self.user_cred["password"] = User.objects.first().password
+        self.user = User.objects.first()
+
+
     def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
         url = self.endpoints["groups"]
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_logged_in_user_can_not_see_groups_list(self):
-        """un-auth users should not be able to see groups"""
-        #login user
-        self.client.post(self.login, {"username": "TestGroupUser", "password":"SecretPW123"}, format='json')
-        
-        #get url
+    def test_logged_in_user_can_see_groups_list(self):
+        """authorized users should be able to see posts"""
+        # login user
+        self.client.force_authenticate(user=self.user)
+
         url = self.endpoints["groups"]
         response = self.client.get(url, format='json')
-        #expect to be granted access
+        # expect to be granted access
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+   
     
-    def users_can_create_a_group(self):
-        
