@@ -31,9 +31,9 @@ class TestAuth(APITestCase):
     def setUp(self):
         """
         sets up a test version of the database,
-        creates a url to the registration endpoint, 
+        creates a url to the registration endpoint,
         creats user data and then tries to post it to the
-        registration endpoind url using json format.  
+        registration endpoind url using json format.
         """
         url = self.endpoints["signup"]
         data = self.new_user
@@ -41,7 +41,7 @@ class TestAuth(APITestCase):
 
     def test_if_signup_url_is_working(self):
         """
-        tests if a user can be created. 204 is a  success since 
+        tests if a user can be created. 204 is a  success since
         this endpoint will not return a any data, just add a user.
         """
         self.assertEqual(self.response.status_code, status.HTTP_204_NO_CONTENT)
@@ -123,7 +123,7 @@ class TestGroups(APITestCase):
     def setUp(self):
         """
         create user in the database
-        login user 
+        login user
         """
         User.objects.create(username='TestGroupUser', password="SecretPW123")
         self.user_cred["username"] = User.objects.first().username
@@ -147,11 +147,25 @@ class TestGroups(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logged_in_user_can_add_group(self):
-        # login user
+    # login user
         self.client.force_authenticate(user=self.user)
 
         # create post with user
         url = self.endpoints["groups"]
-        response = self.client.post(url, self.group_data, format="json")
-        print("!!!!", response.data)
+        group_data = {
+            "group_owner": self.user.profile.id,
+            "name": "test name",
+            "description": "test description",
+        }
+        response = self.client.post(url, group_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # check if group was created
+        group_id = response.data.get("id")
+        self.assertTrue(Group.objects.filter(id=group_id).exists())
+        group = Group.objects.get(id=group_id)
+        self.assertEqual(group.name, "test name")
+        self.assertEqual(group.description, "test description")
+        self.assertEqual(group.group_owner.owner.username, self.user.username)
+        self.assertEqual(group.members.count(), 0)
+
