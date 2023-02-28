@@ -175,3 +175,5 @@ class TestGroups(APITestCase):
         url = f"/groups/{group.id}/"
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    

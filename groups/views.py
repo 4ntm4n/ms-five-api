@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Group
 from .serializers import GroupSerializer
-from rest_api.permissions import IsOwnerOrReadOnly
+from rest_api.permissions import IsGroupOwner
 #from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class GroupListView(generics.ListCreateAPIView):
@@ -13,5 +13,6 @@ class GroupListView(generics.ListCreateAPIView):
 
 
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes= [IsAuthenticated, IsGroupOwner]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
