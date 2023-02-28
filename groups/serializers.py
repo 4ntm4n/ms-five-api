@@ -10,3 +10,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'group_owner', 'name', 'description', 'created_at', 'updated_at',
         ]
+    
+    def create(self, validated_data):
+        validated_data['group_owner'] = self.context['request'].user.profile
+        return super().create(validated_data)
