@@ -31,6 +31,12 @@ class GroupMembersView(generics.RetrieveUpdateDestroyAPIView):
 
         try:
             group = Group.objects.get(id=group_id)
+            
+
+            #check if user already exists in the members list.
+            if group.members.filter(id=profile_id).exists():
+                return Response({'detail': 'User is already a member of the group'}, status=status.HTTP_400_BAD_REQUEST)
+            
             serializer = self.serializer_class(group)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
