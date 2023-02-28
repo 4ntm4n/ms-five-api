@@ -113,6 +113,11 @@ class TestGroups(APITestCase):
         "password": "",
     }
 
+    group_data = {
+        "name": "",
+        "description": ""
+    }
+
     user = None
 
     def setUp(self):
@@ -124,7 +129,6 @@ class TestGroups(APITestCase):
         self.user_cred["username"] = User.objects.first().username
         self.user_cred["password"] = User.objects.first().password
         self.user = User.objects.first()
-
 
     def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
@@ -142,5 +146,12 @@ class TestGroups(APITestCase):
         # expect to be granted access
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-   
-    
+    def test_logged_in_user_can_add_group(self):
+        # login user
+        self.client.force_authenticate(user=self.user)
+
+        # create post with user
+        url = self.endpoints["groups"]
+        response = self.client.post(url, self.group_data, format="json")
+        print("!!!!", response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
