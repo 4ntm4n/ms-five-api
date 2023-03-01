@@ -17,8 +17,11 @@ class GroupSerializer(serializers.ModelSerializer):
         ]
     
     def create(self, validated_data):
-        validated_data['group_owner'] = self.context['request'].user.profile
-        return super().create(validated_data)
+        group_owner_profile = self.context['request'].user.profile
+        validated_data['group_owner'] = group_owner_profile
+        group = super().create(validated_data)
+        group.members.add(group_owner_profile)
+        return group
 
 
 class GroupMembersSerializer(serializers.ModelSerializer):
