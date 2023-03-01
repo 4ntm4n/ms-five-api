@@ -120,6 +120,8 @@ class TestGroups(APITestCase):
     group = None
     profile = None
 
+    extra_user = None
+
     def setUp(self):
         """
         create users in the database
@@ -136,6 +138,8 @@ class TestGroups(APITestCase):
         self.user_cred["password"] = User.objects.first().password
         self.user = User.objects.first()
         
+        self.extra_user = User.objects.create(username="ExtraUser", password="somePassword123")
+
 
 
     def test_anonymous_user_can_not_see_groups(self):
@@ -174,7 +178,7 @@ class TestGroups(APITestCase):
         self.assertEqual(group.name, "test group")
         self.assertEqual(group.description, "test description")
         self.assertEqual(group.group_owner.owner.username, self.user.username)
-        self.assertEqual(group.members.count(), 0)
+        self.assertEqual(group.members.count(), 1)
 
     def test_GroupDetailView(self):
         """
@@ -195,16 +199,22 @@ class TestGroups(APITestCase):
         
         
         #create user to add to the group
-        extra_user = User.objects.create(username="ExtraUser", password="somePassword123")
+        extra_user = self.extra_user
 
         #try to add member, check for OK response
-        add_url = f"/groups/{self.group.id}/members/"
         data = {
             "profile_id": extra_user.profile.id
         }
-        add_response = self.client.put(add_url, data, format="json")
+        add_response = self.client.put(url, data, format="json")
         self.assertEqual(add_response.status_code, status.HTTP_200_OK)
 
-        #check if the group members list contains exta_user profile as an object
+        #convert group model to a dictionary and check for ExtraUsers's profile in members.
+        #if true, extra user is successfully added to the group
         group_dict = model_to_dict(self.group)
-        self.assertEqual(group_dict["members"][0], extra_user.profile)
+        self.assertTrue(extra_user.profile in group_dict["members"])
+
+        #test if user can be removed with a delete request.
+        del_response = self.client.delete(url, data, format="json")
+        self.assertFalse(extra_user.profile in group_dict["members"])
+        self.assertEqual(del_response.status_code, status.HTTP_200_OK)
+        
