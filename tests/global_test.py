@@ -97,6 +97,7 @@ class TestAuth(APITestCase):
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertFalse(is_auth)
 
+from django.forms import model_to_dict
 
 class TestGroups(APITestCase):
     # endpoints tested
@@ -108,28 +109,34 @@ class TestGroups(APITestCase):
     login = '/dj-rest-auth/login/'
     logout = '/dj-rest-auth/logout/'
 
+    #for login
     user_cred = {
         "username": "",
         "password": "",
     }
 
-    group_data = None
+    
     user = None
+    group = None
+    profile = None
 
     def setUp(self):
         """
-        create user in the database
-        login user
+        create users in the database
         """
-        User.objects.create(username='TestGroupUser', password="SecretPW123")
+        # primary user and group used for carry out tests
+        user = User.objects.create(username='TestGroupUser', password="SecretPW123")
+        group = Group.objects.create(
+            group_owner=user.profile, name="test group", description="test description")
+        
+        self.user = user
+        self.group = group
+        self.profile = user.profile
         self.user_cred["username"] = User.objects.first().username
         self.user_cred["password"] = User.objects.first().password
         self.user = User.objects.first()
+        
 
-        self.group_data = {
-            "name": "test name",
-            "description": "test description",
-        }
 
     def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
@@ -148,20 +155,23 @@ class TestGroups(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logged_in_user_can_add_group(self):
-    # login user
+        # login user
         self.client.force_authenticate(user=self.user)
 
         # create post with user
         url = self.endpoints["groups"]
-        
-        response = self.client.post(url, self.group_data, format="json")
+        data = {
+            "name": self.group.name,
+            "description": self.group.description,
+        }
+        response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # check if group was created
         group_id = response.data.get("id")
         self.assertTrue(Group.objects.filter(id=group_id).exists())
         group = Group.objects.get(id=group_id)
-        self.assertEqual(group.name, "test name")
+        self.assertEqual(group.name, "test group")
         self.assertEqual(group.description, "test description")
         self.assertEqual(group.group_owner.owner.username, self.user.username)
         self.assertEqual(group.members.count(), 0)
@@ -170,10 +180,31 @@ class TestGroups(APITestCase):
         """
         test if groupDetail page is reachable. 
         """
-        user = User.objects.first()
-        group = Group.objects.create(group_owner=user.profile, name="test group", description="test description")
-        url = f"/groups/{group.id}/"
+        url = f"/groups/{self.group.id}/"
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
-    
+
+    def test_GroupMembersView(self):
+        """
+        test if member profile can be added to a group using the GroupMemberView.
+        """
+        # test if groupmembersview is reachable.
+        url = f"/groups/{self.group.id}/members/"
+        get_response = self.client.get(url, format="json")
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        
+        
+        #create user to add to the group
+        extra_user = User.objects.create(username="ExtraUser", password="somePassword123")
+
+        #try to add member, check for OK response
+        add_url = f"/groups/{self.group.id}/members/"
+        data = {
+            "profile_id": extra_user.profile.id
+        }
+        add_response = self.client.put(add_url, data, format="json")
+        self.assertEqual(add_response.status_code, status.HTTP_200_OK)
+
+        #check if the group members list contains exta_user profile as an object
+        group_dict = model_to_dict(self.group)
+        self.assertEqual(group_dict["members"][0], extra_user.profile)
