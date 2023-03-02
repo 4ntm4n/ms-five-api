@@ -55,6 +55,10 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         except Profile.DoesNotExist:
             raise serializers.ValidationError({'profile_id': 'User is not a member of the group.'})
         
+        # check if the member_to_remve is also group owner, in which case you receive an error.
+        if  member_to_remove == group.group_owner:
+            raise serializers.ValidationError({'profile_id': 'Uhm.. Group owners can not be removed from group members...'})
+
         group.members.remove(member_to_remove)
 
     def update(self, instance, validated_data):

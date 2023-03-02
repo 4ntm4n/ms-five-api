@@ -23,8 +23,10 @@ class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class GroupMembersView(generics.RetrieveUpdateDestroyAPIView):
     """
-     To add a member, send a put request with the members profile_id like so: {"profile_id":123}.
-     To remove a member, send a delete request with the same payload structure {"profile_id":123}
+     To add or remove a member, send a put request with the members profile_id 
+     like so: {"profile_id":123}. If no member match the id sent in the request payload, 
+     the serializer logic runs the add_member method and tries to add a member to the group.
+     If requested id exists, the remove_member method will execute to remove a member. 
     """
     permission_classes = []
     serializer_class = GroupMembersSerializer

@@ -213,8 +213,10 @@ class TestGroups(APITestCase):
         group_dict = model_to_dict(self.group)
         self.assertTrue(extra_user.profile in group_dict["members"])
 
-        #test if user can be removed with a delete request.
-        """ del_response = self.client.delete(url, data, format="json")
-        self.assertFalse(extra_user.profile in group_dict["members"])
-        self.assertEqual(del_response.status_code, status.HTTP_200_OK) """
+
+        #remove user by sending existing member's user id as payload
+        del_response = self.client.put(url, data, format="json")
+        #check if user is removed. 
+        self.assertFalse(extra_user.profile in del_response.data["members"])
+        self.assertEqual(del_response.status_code, status.HTTP_200_OK)
         
