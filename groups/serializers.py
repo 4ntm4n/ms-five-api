@@ -48,14 +48,22 @@ class GroupMembersSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'profile_id': 'User is already a member of the group.'})
 
         group.members.add(new_member)
+    
+    def remove_member(self, group, profile_id):
+        try:
+            member_to_remove = group.members.get(id=profile_id)
+        except Profile.DoesNotExist:
+            raise serializers.ValidationError({'profile_id': 'User is not a member of the group.'})
+        
+        group.members.remove(member_to_remove)
 
     def update(self, instance, validated_data):
-        profile_id = validated_data.pop('profile_id', None)
-
-        if profile_id:
-            self.add_member(instance, profile_id)
+        profile_id = validated_data.get('profile_id')
+        
+        if profile_id is not None:
+            if profile_id in [member.id for member in instance.members.all()]:
+                self.remove_member(instance, profile_id)
+            else:
+                self.add_member(instance, profile_id)
 
         return super().update(instance, validated_data)
-
-
-    
