@@ -27,6 +27,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class GroupMembersSerializer(serializers.ModelSerializer):
     group_owner = serializers.ReadOnlyField(source='group_owner.id')
     members = ProfileSerializer(many=True, read_only=True)
+    profile_id = serializers.IntegerField(write_only=True)
 
     def get_group_owner(self, obj):
         return ProfileSerializer(obj.group_owner).data
@@ -34,23 +35,27 @@ class GroupMembersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = [
-            'id', 'group_owner', 'members',
+            'id', 'group_owner', 'members', 'profile_id'
         ]
 
-
-    def update(self, instance, validated_data):
-        profile_id = self.context.get('profile_id')
-        if not profile_id:
-            raise serializers.ValidationError({'profile_id': 'This field is required.'})
-
+    def add_member(self, group, profile_id):
         try:
             new_member = Profile.objects.get(id=profile_id)
         except Profile.DoesNotExist:
             raise serializers.ValidationError({'profile_id': 'Invalid profile ID.'})
 
-        if instance.members.filter(id=profile_id).exists():
+        if group.members.filter(id=profile_id).exists():
             raise serializers.ValidationError({'profile_id': 'User is already a member of the group.'})
 
-        instance.members.add(new_member)
+        group.members.add(new_member)
 
-        return instance
+    def update(self, instance, validated_data):
+        profile_id = validated_data.pop('profile_id', None)
+
+        if profile_id:
+            self.add_member(instance, profile_id)
+
+        return super().update(instance, validated_data)
+
+
+    
