@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from profiles.models import Profile
 from groups.models import Group
 from django.contrib.auth.models import User
@@ -97,7 +98,6 @@ class TestAuth(APITestCase):
         is_auth = response.wsgi_request.user.is_authenticated
         self.assertFalse(is_auth)
 
-from django.forms import model_to_dict
 
 class TestGroups(APITestCase):
     # endpoints tested
@@ -109,13 +109,12 @@ class TestGroups(APITestCase):
     login = '/dj-rest-auth/login/'
     logout = '/dj-rest-auth/logout/'
 
-    #for login
+    # for login
     user_cred = {
         "username": "",
         "password": "",
     }
 
-    
     user = None
     group = None
     profile = None
@@ -127,20 +126,20 @@ class TestGroups(APITestCase):
         create users in the database
         """
         # primary user and group used for carry out tests
-        user = User.objects.create(username='TestGroupUser', password="SecretPW123")
+        user = User.objects.create(
+            username='TestGroupUser', password="SecretPW123")
         group = Group.objects.create(
             group_owner=user.profile, name="test group", description="test description")
-        
+
         self.user = user
         self.group = group
         self.profile = user.profile
         self.user_cred["username"] = User.objects.first().username
         self.user_cred["password"] = User.objects.first().password
         self.user = User.objects.first()
-        
-        self.extra_user = User.objects.create(username="ExtraUser", password="somePassword123")
 
-
+        self.extra_user = User.objects.create(
+            username="ExtraUser", password="somePassword123")
 
     def test_anonymous_user_can_not_see_groups(self):
         """un-auth users should not be able to see groups"""
@@ -184,6 +183,9 @@ class TestGroups(APITestCase):
         """
         test if groupDetail page is reachable. 
         """
+        # authenticate user
+        self.client.force_authenticate(user=self.user)
+
         url = f"/groups/{self.group.id}/"
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -192,31 +194,31 @@ class TestGroups(APITestCase):
         """
         test if member profile can be added to a group using the GroupMemberView.
         """
+        # authenticate user
+        self.client.force_authenticate(user=self.user)
+
         # test if groupmembersview is reachable.
         url = f"/groups/{self.group.id}/members/"
         get_response = self.client.get(url, format="json")
         self.assertEqual(get_response.status_code, status.HTTP_200_OK)
-        
-        
-        #create user to add to the group
+
+        # create user to add to the group
         extra_user = self.extra_user
 
-        #try to add member, check for OK response
+        # try to add member, check for OK response
         data = {
             "profile_id": extra_user.profile.id
         }
         add_response = self.client.put(url, data, format="json")
         self.assertEqual(add_response.status_code, status.HTTP_200_OK)
 
-        #convert group model to a dictionary and check for ExtraUsers's profile in members.
-        #if true, extra user is successfully added to the group
+        # convert group model to a dictionary and check for ExtraUsers's profile in members.
+        # if true, extra user is successfully added to the group
         group_dict = model_to_dict(self.group)
         self.assertTrue(extra_user.profile in group_dict["members"])
 
-
-        #remove user by sending existing member's user id as payload
+        # remove user by sending existing member's user id as payload
         del_response = self.client.put(url, data, format="json")
-        #check if user is removed. 
+        # check if user is removed.
         self.assertFalse(extra_user.profile in del_response.data["members"])
         self.assertEqual(del_response.status_code, status.HTTP_200_OK)
-        
