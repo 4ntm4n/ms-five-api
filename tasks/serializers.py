@@ -7,6 +7,7 @@ from groups.serializers import GroupSerializer
 class TaskSerializer(serializers.ModelSerializer):
     in_progress = serializers.BooleanField()
     completed = serializers.BooleanField()
+    owning_group = serializers.StringRelatedField()
 
     class Meta:
         model = Task
@@ -18,6 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         completed = validated_data.get('completed', instance.completed)
         in_progress = validated_data.get('in_progress', instance.in_progress)
+        
 
         instance.completed = completed
         if completed:
