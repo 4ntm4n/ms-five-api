@@ -2,6 +2,7 @@ from rest_framework import generics
 from .models import Task
 from .serializers import TaskSerializer
 from rest_api.permissions import IsOwnerOrReadOnly
+from .filter_backends import IsGroupMemberFilter
 
 class TaskListView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
@@ -22,4 +23,10 @@ class CreateTaskView(generics.CreateAPIView):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
-    
+
+class TaskEventView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = []
+    filter_backend = [IsGroupMemberFilter]
+    queryset = Task.objects.all()
+
