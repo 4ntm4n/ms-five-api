@@ -31,22 +31,3 @@ class GroupMembersView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = []
     serializer_class = GroupMembersSerializer
     queryset = Group.objects.all()
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['profile_id'] = self.request.data.get('profile_id')
-        return context
-
-    def delete(self, request, *args, **kwargs):
-        group = self.get_object()
-        profile_id = self.request.data.get('profile_id')
-        if profile_id:
-            try:
-                profile = Profile.objects.get(id=profile_id)
-            except Profile.DoesNotExist:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            if profile in group.members.all():
-                group.members.remove(profile)
-                serializer = self.get_serializer(group)
-                return Response(serializer.data)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
