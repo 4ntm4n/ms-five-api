@@ -21,7 +21,7 @@ class NoOwnerAndMemberOrOwner(permissions.BasePermission):
     task.owner if a task owner is set.
     """
     def has_object_permission(self, request, view, obj):
-
+        
         # check if user is not member of the group
         if request.user.profile not in obj.owning_group.members.all():
             return False

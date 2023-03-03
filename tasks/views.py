@@ -13,8 +13,12 @@ class TaskListView(generics.ListCreateAPIView):
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [NoOwnerAndMemberOrOwner]
+    permission_classes = [IsAuthenticated, NoOwnerAndMemberOrOwner]
     queryset = Task.objects.all()
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class CreateTaskView(generics.CreateAPIView):
     serializer_class = TaskSerializer
