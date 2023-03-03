@@ -2,7 +2,7 @@ from rest_framework import generics
 from django.http import request
 from .models import Task
 from .serializers import TaskSerializer
-from rest_api.permissions import IsOwnerOrReadOnly, IsMember
+from rest_api.permissions import NoOwnerAndMemberOrOwner
 from .filter_backends import IsGroupMemberFilter
 from rest_framework.permissions import IsAuthenticated
 
@@ -13,12 +13,12 @@ class TaskListView(generics.ListCreateAPIView):
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    permission_classes = []
+    permission_classes = [NoOwnerAndMemberOrOwner]
     queryset = Task.objects.all()
 
 class CreateTaskView(generics.CreateAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsMember]
+    permission_classes = []
     queryset = Task.objects.all()
 
     def get_serializer_context(self):
@@ -29,7 +29,7 @@ class CreateTaskView(generics.CreateAPIView):
 
 class TaskEventView(generics.ListAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, IsMember]
+    permission_classes = [IsAuthenticated]
     #filter_backend = [IsGroupMemberFilter]
 
     def get_queryset(self):
