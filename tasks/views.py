@@ -26,11 +26,6 @@ class CreateTaskView(generics.CreateAPIView):
         context['request'] = self.request
         return context
 
-class UpdateTaskView(generics.UpdateAPIView):
-    serializer_class = TaskSerializer
-    permission_classes = []
-    queryset = Task.objects.all()
-
 
 class TaskEventView(generics.ListAPIView):
     serializer_class = TaskSerializer
