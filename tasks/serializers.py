@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Task
+from groups.models import Group
 from profiles.serializers import ProfileSerializer
 from groups.serializers import GroupSerializer
 
@@ -7,7 +8,7 @@ from groups.serializers import GroupSerializer
 class TaskSerializer(serializers.ModelSerializer):
     in_progress = serializers.BooleanField()
     completed = serializers.BooleanField()
-    owning_group = serializers.StringRelatedField()
+    owning_group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all())
 
     class Meta:
         model = Task
