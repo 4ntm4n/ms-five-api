@@ -5,6 +5,7 @@ from .models import Group
 from profiles.models import Profile
 from .serializers import GroupSerializer, GroupMembersSerializer
 from rest_api.permissions import IsGroupOwner
+from .filter_backends import IsGroupMemberFilter
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
@@ -13,10 +14,11 @@ class GroupListView(generics.ListCreateAPIView):
     serializer_class = GroupSerializer
     queryset = Group.objects.all(
     ).order_by('-created_at')
+    filter_backends = [IsGroupMemberFilter]
 
 
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated ,IsGroupOwner]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
@@ -28,6 +30,6 @@ class GroupMembersView(generics.RetrieveUpdateDestroyAPIView):
      the serializer logic runs the add_member method and tries to add a member to the group.
      If requested id exists, the remove_member method will execute to remove a member. 
     """
-    permission_classes = []
+    permission_classes = [IsAuthenticated, IsGroupOwner]
     serializer_class = GroupMembersSerializer
     queryset = Group.objects.all()
