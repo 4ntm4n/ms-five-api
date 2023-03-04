@@ -41,18 +41,15 @@ class TaskSerializer(serializers.ModelSerializer):
         if owner and owner != profile:
             raise serializers.ValidationError("you can not deligate tasks to other users...")
 
-        instance.completed = completed
-
+        
         instance = super().update(instance, validated_data)
-        instance.owner = owner
-        if owner is not None:
-            instance.in_progress = True
-            instance.completed = False
-        elif completed:
-            instance.in_progress = False
+
+        if in_progress:
+            instance.owner = profile
+        
+        if completed:
             instance.owner = None
-        else:
-            instance.in_progress = in_progress
+            instance.in_progress = False
         
         return instance
     
