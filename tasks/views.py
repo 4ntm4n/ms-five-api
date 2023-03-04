@@ -6,13 +6,17 @@ from .serializers import TaskSerializer
 from rest_api.permissions import NoOwnerAndMemberOrOwner
 from .filter_backends import IsGroupMemberFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
 
 
 class TaskListView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
     queryset = Task.objects.all(
     ).order_by('-created_at')
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    #filterset to be used for dropdowns for example
+    filterset_fields = ['owner__owner__username', 'owning_group__name']
+    search_fields = ['title', 'description', 'owner__owner__username', 'owning_group__name']
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer

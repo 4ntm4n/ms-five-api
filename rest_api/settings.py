@@ -34,9 +34,6 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DATETIME_FORMAT': '%d %b %Y',
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
 }
 
 if 'DEV' not in os.environ:
@@ -87,6 +84,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
+    'django_filters',
 
     #auth
     'django.contrib.sites',
@@ -99,7 +97,7 @@ INSTALLED_APPS = [
     'profiles',
     'groups',
     'tasks',
-
+   
 ]
 SITE_ID = 1
 MIDDLEWARE = [
