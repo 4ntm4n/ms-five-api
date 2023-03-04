@@ -13,7 +13,7 @@ class TaskListView(generics.ListCreateAPIView):
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, NoOwnerAndMemberOrOwner]
+    permission_classes = [IsAuthenticated, ]
     queryset = Task.objects.all()
     def get_serializer_context(self):
         context = super().get_serializer_context()

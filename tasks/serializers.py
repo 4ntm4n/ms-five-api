@@ -9,17 +9,27 @@ class TaskSerializer(serializers.ModelSerializer):
     in_progress = serializers.BooleanField()
     completed = serializers.BooleanField()
     owning_group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all())
-    group_name = serializers.SerializerMethodField()
-    #owner_username = serializers.SerializerMethodField()
+    group_name = serializers.SerializerMethodField(read_only=True)
+    owner_name = serializers.SerializerMethodField(read_only=True)
+    owner_profile_image = serializers.SerializerMethodField(read_only=True)
     
+    
+    def get_owner_name(self, obj):
+        return obj.owner.owner.username if obj.owner else None
+
+    def get_owner_profile_image(self, obj):
+        return obj.owner.image.url if obj.owner else None
+
     def get_group_name(self, obj):
         return obj.owning_group.name if obj.owning_group else None
     
+    
+
     class Meta:
         model = Task
         fields = [
             'id', 'title', 'description', 'owning_group', 'owner',
-            'in_progress', 'completed', 'created_at', 'updated_at', 'group_name'
+            'in_progress', 'completed', 'created_at', 'updated_at', 'group_name', 'owner_name', 'owner_profile_image'
         ]
 
     def update(self, instance, validated_data):
@@ -38,7 +48,7 @@ class TaskSerializer(serializers.ModelSerializer):
             instance.in_progress = in_progress
         
         instance.owner = owner
-        instance.save()
+        instance = super().update(instance, validated_data)
         return instance
     
     def create(self, validated_data):
