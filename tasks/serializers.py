@@ -13,9 +13,7 @@ class TaskSerializer(serializers.ModelSerializer):
     #owner_username = serializers.SerializerMethodField()
     
     def get_group_name(self, obj):
-        if obj.owning_group.name:
-            return obj.owning_group.name
-        return None
+        return obj.owning_group.name if obj.owning_group else None
     
     class Meta:
         model = Task
