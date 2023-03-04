@@ -1,4 +1,5 @@
 from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
 from django.http import request
 from .models import Task
 from .serializers import TaskSerializer
@@ -6,10 +7,12 @@ from rest_api.permissions import NoOwnerAndMemberOrOwner
 from .filter_backends import IsGroupMemberFilter
 from rest_framework.permissions import IsAuthenticated
 
+
 class TaskListView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
     queryset = Task.objects.all(
     ).order_by('-created_at')
+    filter_backends = [DjangoFilterBackend]
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
