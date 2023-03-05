@@ -4,8 +4,6 @@ from django.http import request
 from .models import Task
 from groups.models import Group
 from .serializers import TaskSerializer
-from rest_api.permissions import NoOwnerAndMemberOrOwner
-from .filter_backends import IsGroupMemberFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from django.db.models import Q
