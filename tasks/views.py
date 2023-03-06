@@ -51,8 +51,23 @@ class TaskListView(generics.ListAPIView):
         return relevant_tasks
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    This view handles all actions that you can perfom on an already existing task
+    (GET, PUT, PATCH, UPDATE and DELETE) by its id.
+    
+    It is especially designed to handle update requests setting the created tasks 
+    owner from Null to requesting user. when that happens, the serializer is also
+    automatically updating the status of in_progress to true. 
+
+    if the the task is later updated to complete: true, the owner is auto set to 
+    Null and in_progress is set to false again. 
+
+    Please Note! If you want to re open the task after it has been completed,
+    you need to explicitly set "complete" to False and set the a new owner in
+    the PUT request. 
+    """
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -60,8 +75,16 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
         return context
 
 class CreateTaskView(generics.CreateAPIView):
+    """
+    this is a simple view to handle creation of a new task 
+    
+    Please Note! you will manually have to set the owning group to the group that you 
+    wish to add the task to in the GET request. The serializer will prohibit you from setting
+    an owner other than the authenticated user or to create a task for a group you are not a
+    member of.
+    """
     serializer_class = TaskSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
 
     def get_serializer_context(self):
