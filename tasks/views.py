@@ -10,7 +10,27 @@ from django.db.models import Q
 
 
 class TaskListView(generics.ListAPIView):
+    """
+    An endpoint for listing all tasks in the app.
     
+    the get_queryset method limits this view to only show tasks related to groups that 
+    the requsting user is a member of. you need to be authenticated to see any data.
+
+    The filters allow search on:
+    * task title
+    * task description
+    * task owner username
+    * name of group the task belongs to
+
+    the fieldset filters allow for quick filtering on:
+    * completed tasks
+    * tasks in progress
+    * task owner username 
+    * task owning group name
+
+    additionally if you want to see all relevant tasks that are un initiated
+    you can send a request like so: /tasks/?owner=null
+    """
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     #filterset to be used for dropdowns for example
