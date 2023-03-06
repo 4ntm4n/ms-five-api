@@ -50,6 +50,26 @@ class TaskListView(generics.ListAPIView):
 
         return relevant_tasks
 
+
+class CreateTaskView(generics.CreateAPIView):
+    """
+    this is a simple view to handle creation of a new task 
+    
+    Please Note! you will manually have to set the owning group to the group that you 
+    wish to add the task to in the GET request. The serializer will prohibit you from setting
+    an owner other than the authenticated user or to create a task for a group you are not a
+    member of.
+    """
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Task.objects.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     This view handles all actions that you can perfom on an already existing task
@@ -74,30 +94,23 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
         context['request'] = self.request
         return context
 
-class CreateTaskView(generics.CreateAPIView):
-    """
-    this is a simple view to handle creation of a new task 
-    
-    Please Note! you will manually have to set the owning group to the group that you 
-    wish to add the task to in the GET request. The serializer will prohibit you from setting
-    an owner other than the authenticated user or to create a task for a group you are not a
-    member of.
-    """
-    serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
-    queryset = Task.objects.all()
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
-
 
 class TaskEventView(generics.ListAPIView):
+    """
+    an apiview created to list activities happeneing in the groups a user is a member of. 
+    
+    it returns the same data as the normal listview but without the filters 
+    this is kept as a separate endpoint and view in case we need to add functionality 
+    to this specific view later
+
+    it orders by "updated_at" primarely so users can see most recent events on top. 
+    in case there is two tasks with the same update date the task will use "create_at"
+    as a "fallback" to order by that instead. 
+    """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
     #filter_backend = [IsGroupMemberFilter]
 
     def get_queryset(self):
-        return Task.objects.filter(owning_group__members=self.request.user.profile)
+        return Task.objects.filter(owning_group__members=self.request.user.profile).order_by('-updated_at', 'created_at')
 
