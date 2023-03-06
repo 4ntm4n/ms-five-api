@@ -47,9 +47,6 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         except Profile.DoesNotExist:
             raise serializers.ValidationError({'profile_id': 'Invalid profile ID.'})
 
-        if group.members.filter(id=profile_id).exists():
-            raise serializers.ValidationError({'profile_id': 'User is already a member of the group.'})
-
         group.members.add(new_member)
     
     def remove_member(self, group, profile_id):
