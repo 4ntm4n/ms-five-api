@@ -75,16 +75,23 @@ class CreateGroupTaskView(generics.CreateAPIView):
     group is set automatically to the group that is specified in the url. 
     
     Please Note!
-    The endpoint for this view is specified in the groups app "groups.urls.py"
+    The path for this view is specified in the groups app "groups.urls.py"
     """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Task.objects.all()
+    
+    def get_group(self):
+        try:
+            group_id = self.kwargs['group_id']
+            group = Group.objects.get(id=group_id)
+        except (KeyError, Group.DoesNotExist):
+            raise Http404
+        return group
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
+    def perform_create(self, serializer):
+        group = self.get_group()
+        serializer.save(owning_group=group)
+        
 
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
