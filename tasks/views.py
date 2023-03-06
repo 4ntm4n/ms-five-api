@@ -1,4 +1,5 @@
-from rest_framework import generics, request
+from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404
 from .models import Task
@@ -7,6 +8,7 @@ from .serializers import TaskSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from django.db.models import Q
+
 
 
 
@@ -74,9 +76,10 @@ class CreateGroupTaskView(generics.CreateAPIView):
     """
     This view is designed to create a task for a specific group.
     group is set automatically to the group that is specified in the url. 
-    
+
     Please Note!
-    The path for this view is specified in the groups app "groups.urls.py"
+    * if the requesting user is not a member of the group, a permission error is raised.
+    * The path for this view is specified in the groups app "groups.urls.py"
     """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
@@ -91,6 +94,8 @@ class CreateGroupTaskView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         group = self.get_group()
+        if not self.request.user.profile in group.members.all():
+            raise PermissionDenied("LOL! you need to be a member of the group you create a task for")
         serializer.save(owning_group=group)
         
 
@@ -134,7 +139,6 @@ class TaskEventView(generics.ListAPIView):
     """
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
-    #filter_backend = [IsGroupMemberFilter]
 
     def get_queryset(self):
         return Task.objects.filter(owning_group__members=self.request.user.profile).order_by('-updated_at', 'created_at')

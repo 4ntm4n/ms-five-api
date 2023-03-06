@@ -4,3 +4,6 @@ backend api for fifth milestone project on code institute, using Django REST Fra
 
 Django Documentation for queries with Q
 https://docs.djangoproject.com/en/4.1/topics/db/queries/#complex-lookups-with-q-objects
+
+Rest Framework built in permission classes: 
+https://www.django-rest-framework.org/api-guide/exceptions/
