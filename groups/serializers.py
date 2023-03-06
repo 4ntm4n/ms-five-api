@@ -39,6 +39,9 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         ]
 
     def add_member(self, group, profile_id):
+        """
+        try to add user profile to members list of a group using profile id.
+        """
         try:
             new_member = Profile.objects.get(id=profile_id)
         except Profile.DoesNotExist:
@@ -50,6 +53,12 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         group.members.add(new_member)
     
     def remove_member(self, group, profile_id):
+        """
+        try to remove member by checking if profile id is in members list
+        if member is owner of tasks, owner is set to None for tasks owned by member that
+        is being removed before the actual remove is happening. this prevents
+        tasks to be owned by a user that is no longer in a group.
+        """
         try:
             member_to_remove = group.members.get(id=profile_id)
         except Profile.DoesNotExist:
