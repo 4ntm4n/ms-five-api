@@ -9,7 +9,8 @@ from rest_framework import filters
 from django.db.models import Q
 
 
-class TaskListView(generics.ListCreateAPIView):
+class TaskListView(generics.ListAPIView):
+    
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     #filterset to be used for dropdowns for example
