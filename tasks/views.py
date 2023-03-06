@@ -68,6 +68,23 @@ class CreateTaskView(generics.CreateAPIView):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+    
+class CreateGroupTaskView(generics.CreateAPIView):
+    """
+    This view is designed to create a task for a specific group.
+    group is set automatically to the group that is specified in the url. 
+    
+    Please Note!
+    The endpoint for this view is specified in the groups app "groups.urls.py"
+    """
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Task.objects.all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
