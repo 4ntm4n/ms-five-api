@@ -3,7 +3,7 @@ from rest_framework import serializers, status
 from .models import Group
 from profiles.models import Profile
 from profiles.serializers import ProfileSerializer
-from rest_framework.response import Response
+from tasks.models import Task
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -58,6 +58,9 @@ class GroupMembersSerializer(serializers.ModelSerializer):
         # check if the member_to_remve is also group owner, in which case you receive an error.
         if  member_to_remove == group.group_owner:
             raise serializers.ValidationError({'profile_id': 'Uhm.. Group owners can not be removed from group members...'})
+
+        # set all tasks owned by a member_to_remove to task.owner None and in_progress to False, if they are not completed.
+        Task.objects.filter(owning_group=group, owner=member_to_remove, completed=False).update(owner=None, in_progress=False)
 
         group.members.remove(member_to_remove)
 
