@@ -67,7 +67,7 @@ DEBUG = 'DEV' in os.environ
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOSTS')]
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000", os.environment.get('FRONT_END_PROD')]
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
