@@ -15,20 +15,20 @@ import dj_database_url
 if os.path.exists('env.py'):
     import env
 
-#cloudinary settings
+# cloudinary settings
 CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL')
 }
-#default media folder on cloudinary
+# default media folder on cloudinary
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-#default permission-classes from django rest framework
+# default permission-classes from django rest framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [(
         'rest_framework.authentication.SessionAuthentication'
         if 'DEV' in os.environ
-        else 'dj_rest_auth.jwt_auth.JWTCookieAuthentication'
+        else 'rest_framework_simplejwt.authentication.JWTAuthentication'
     )],
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
@@ -68,12 +68,12 @@ DEBUG = 'DEV' in os.environ
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOSTS')]
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000",  ]
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000",]
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 INSTALLED_APPS = [
-    #default and 3rd party apps
+    # default and 3rd party apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,27 +88,27 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
 
-    #auth
+    # auth
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'dj_rest_auth.registration',
 
-    #project specific apps
+    # project specific apps
     'profiles',
     'groups',
     'tasks',
-   
+
 ]
 SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #corsheaders middleware
+    # corsheaders middleware
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    #end corsheaders middleware
+    # end corsheaders middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -195,8 +195,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#dummy backend logs in terminal
+# dummy backend logs in terminal
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-#dj-rest-auth email verification
+# dj-rest-auth email verification
 ACCOUNT_EMAIL_VERIFICATION = 'none'

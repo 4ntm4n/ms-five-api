@@ -22,11 +22,12 @@ urlpatterns = [
     path('', root_route),
     path('admin/', admin.site.urls),
     
-    #session login from django rest framework
+    #session login from django rest framework when env.py[DEV] is not false.
     path('api-auth/', include('rest_framework.urls')),
 
-    #dj-rest-auth views for tokenbased auth.
-    path('dj-rest-auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # this project is now using simpleJWT token and token refresh views to obtain token
+    
+    # we then use the dj-rest-auth views for tokenbased auth, signup, pw-change etc...
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
 
