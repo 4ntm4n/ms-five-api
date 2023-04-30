@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import root_route
+from .views import (
+    root_route,
+    MyTokenObtainPairView
+    )
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
 
@@ -29,7 +31,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
     # this project is now using simpleJWT token and token refresh views to obtain token
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # we then use the dj-rest-auth views for tokenbased auth, signup, pw-change etc...
