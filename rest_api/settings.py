@@ -172,7 +172,16 @@ WSGI_APPLICATION = 'rest_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-if 'DEV' in os.environ:
+"""
+ The following code will make sure that:
+ If the DEV variable is set but the PROD variable is not set, 
+ the development server with the SQLite3 database will be run.
+
+ In all other cases (either PROD is set, or both DEV and PROD are not set, or both are set), 
+ the production server with the PostgreSQL database will be run
+"""
+
+if 'DEV' in os.environ and 'PROD' not in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
