@@ -16,22 +16,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from .views import root_route
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('', root_route),
     path('admin/', admin.site.urls),
-    
-    #session login from django rest framework when env.py[DEV] is not false.
+
+    # session login from django rest framework when env.py[DEV] is not false.
     path('api-auth/', include('rest_framework.urls')),
 
     # this project is now using simpleJWT token and token refresh views to obtain token
-    
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
     # we then use the dj-rest-auth views for tokenbased auth, signup, pw-change etc...
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
 
-    #project app views
+    # project app views
     path('', include('profiles.urls')),
     path('', include('groups.urls')),
     path('', include('tasks.urls')),
