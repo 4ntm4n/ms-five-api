@@ -83,10 +83,6 @@ SIMPLE_JWT = {
 }
 
 
-REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'drf_api.serializers.CurrentUserSerializer'
-}
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
