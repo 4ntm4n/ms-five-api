@@ -12,10 +12,13 @@ class ProfileFilterBackend(DjangoFilterBackend):
         return queryset
 
 
+#profile list class that lists all profiles and uses custom profile searchfilter as depenency.
 class ProfileListView(generics.ListAPIView):
     serializer_class = ProfileSerializer
-    queryset = Profile.objects.all(
-    ).order_by('-created_at')
+    permission_classes = [IsOwnerOrReadOnly]
+    filter_backends = [ProfileFilterBackend, filters.OrderingFilter]
+    ordering_fields = ['-created_at']
+    queryset = Profile.objects.all()
 
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
