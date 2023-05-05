@@ -1,7 +1,16 @@
-from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 from .models import Profile
 from .serializers import ProfileSerializer
 from rest_api.permissions import IsOwnerOrReadOnly
+
+class ProfileFilterBackend(DjangoFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(owner__username__icontains=search_query)
+        return queryset
+
 
 class ProfileListView(generics.ListAPIView):
     serializer_class = ProfileSerializer
