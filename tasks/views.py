@@ -37,7 +37,7 @@ class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     #filterset to be used for dropdowns for example
-    filterset_fields = ['owner__owner__username', 'owning_group__name', 'completed', 'in_progress']
+    filterset_fields = ['owner__owner__username', 'owning_group__name', 'owning_group__id', 'completed', 'in_progress']
     search_fields = ['title', 'description', 'owner__owner__username', 'owning_group__name']
     permission_classes = [IsAuthenticated]
     
