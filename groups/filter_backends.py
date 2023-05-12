@@ -9,4 +9,5 @@ class IsGroupMemberFilter(filters.BaseFilterBackend):
         current_user = request.user.profile
         return [group for group in queryset if current_user in group.members.all()]
 
-    
+
+

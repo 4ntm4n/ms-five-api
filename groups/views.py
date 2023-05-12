@@ -6,6 +6,7 @@ from profiles.models import Profile
 from .serializers import GroupSerializer, GroupMembersSerializer
 from rest_api.permissions import IsGroupOwner
 from .filter_backends import IsGroupMemberFilter
+from .custom_permissions import IsGroupMember
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
@@ -18,7 +19,7 @@ class GroupListView(generics.ListCreateAPIView):
 
 
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated ,IsGroupOwner]
+    permission_classes = [IsAuthenticated , IsGroupMember]
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
