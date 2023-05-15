@@ -33,7 +33,7 @@ REST_FRAMEWORK = {
     
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 20,
     'DATETIME_FORMAT': '%d %b %Y',
 }
 
@@ -98,9 +98,10 @@ DEBUG = 'DEV' in os.environ
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.environ.get('ALLOWED_HOSTS')]
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000",]
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ["http://127.0.0.1", "http://localhost:3000", os.environ.get('FRONT_END_PROD')]
+
 
 # Application definition
 INSTALLED_APPS = [
